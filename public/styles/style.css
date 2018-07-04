@@ -1,0 +1,514 @@
+/* #region core */
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    top: 0;
+    left: 0;
+    height: calc(100% - 10px);
+    width: calc(100% - 10px);
+    margin: 5px;
+    padding: 0;
+}
+
+/* #endregion */
+
+/* #region map */
+
+/* #region core */
+
+#map {
+    border: 1px solid rgba(var(--black), .1);
+    border-radius: 3px;
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+}
+
+#map .point-control-wrapper {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    -webkit-box-pack: start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+}
+
+#map .point-data-holder {
+    display: none;
+}
+
+#map .point-control-wrapper .point-control-el {
+    margin: 0 5px 0 0;
+    cursor: pointer;
+    -webkit-transition: all 0.3s;
+    -o-transition: all 0.3s;
+    transition: all 0.3s;
+    border-radius: 3px;
+    border: 1px solid rgba(var(--carnation), 1);
+}
+
+/* #endregion */
+
+/* #region check-box */
+
+#map .point-control-wrapper .point-checkbox {
+    width: 18px;
+    height: 18px;
+    border: 1px solid rgba(var(--carnation), 1);
+}
+
+#map .point-control-wrapper .point-checkbox.selected {
+    background-color: rgba(var(--carnation), 1);
+}
+
+#map .point-control-wrapper .point-checkbox:not(.selected):hover {
+    background-color: rgba(var(--carnation), 1);
+}
+
+/* #endregion */
+
+/* #region button */
+
+#map .point-control-wrapper .point-button {
+    padding: 0 5px;
+    line-height: 16px;
+    height: 18px;
+}
+
+#map .point-control-wrapper .point-checkbox:not(.selected)+.point-button {
+    background-color: rgba(var(--nevada), .5);
+    border-color: rgba(var(--nevada), .5);
+    color: rgba(var(--nevada), 1);
+    cursor: default;
+}
+
+#map .point-control-wrapper .point-checkbox.selected+.point-button {
+    background-color: rgba(var(--white), 1);
+    border-color: rgba(var(--carnation), 1);
+    color: unset;
+}
+
+#map .point-control-wrapper .point-checkbox.selected+.point-button:hover {
+    background-color: rgba(var(--carnation), 1);
+    color: rgba(var(--white), 1);
+}
+
+/* #endregion */
+
+/* #region balloon */
+
+#map .ymaps-2-1-65-balloon {
+    padding: 0;
+    border-radius: 3px;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+
+#map .ymaps-2-1-65-balloon__layout {
+    border-radius: 3px;
+    background-color: rgba(var(--ebonyclay), .2);
+}
+
+#map .ymaps-2-1-65-balloon__close-button {
+    border-radius: 3px;
+    height: 30px;
+    width: 30px;
+    opacity: 0.5;
+}
+
+#map .ymaps-2-1-65-balloon__close-button:hover {
+    opacity: 1;
+}
+
+#map .ymaps-2-1-65-balloon__content {
+    background-color: rgba(var(--white), 1);
+    border-radius: 3px;
+    padding: 10px;
+    margin: 5px 29px 5px 5px;
+}
+
+#map .ymaps-2-1-65-balloon__content>ymaps {
+    padding: 5px !important;
+    border-radius: 3px;
+}
+
+#map .ymaps-2-1-65-balloon__tail {
+    background-color: rgba(var(--nevada), .4);
+    border-radius: 0px 0px 0px 3px;
+}
+
+#map .ymaps-2-1-65-balloon__tail:after {
+    bottom: 4px;
+    left: 4px;
+    border-radius: 0px 0px 0px 3px;
+}
+
+/* #endregion */
+
+/* #region add-route */
+
+.add-route-frame {
+    width: 100%;
+    max-width: 650px;
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    -webkit-transform: translate(-50%, 0%);
+    -ms-transform: translate(-50%, 0%);
+    transform: translate(-50%, 0%);
+    -webkit-animation: reveal .5s;
+    animation: reveal .5s;
+    border-radius: 3px;
+    background-color: rgba(var(--ebonyclay), .2);
+    padding: 5px 30px 5px 5px;
+}
+
+.add-route-wrapper {
+    background-color: rgba(var(--white), .9);
+    width: 100%;
+    height: 100%;
+    display: -ms-grid;
+    display: grid;
+    grid-template-areas: 'header sidebar' 'body sidebar';
+    /* grid-row-gap: 5px; */
+    cursor: default;
+    border-radius: 3px;
+    color: rgba(var(--ebonyclay), 1);
+}
+
+.add-route-wrapper .header {
+    -ms-grid-row: 1;
+    -ms-grid-column: 1;
+    grid-area: header;
+    text-align: center;
+    padding: 5px;
+}
+
+.add-route-wrapper .body {
+    -ms-grid-row: 2;
+    -ms-grid-column: 1;
+    grid-area: body;
+    display: -ms-grid;
+    display: grid;
+    grid-template-areas: 'parent' 'child' 'information';
+    grid-row-gap: 5px;
+    padding: 5px;
+}
+
+.add-route-wrapper .body .parent {
+    -ms-grid-row: 1;
+    -ms-grid-column: 1;
+    grid-area: parent;
+}
+
+.add-route-wrapper .body .child {
+    -ms-grid-row: 3;
+    -ms-grid-column: 1;
+    grid-area: child;
+}
+
+.add-route-wrapper .body .information {
+    -ms-grid-row: 5;
+    -ms-grid-column: 1;
+    grid-area: information;
+}
+
+.add-route-wrapper .body .address {
+    display: -ms-grid;
+    display: grid;
+    grid-template-areas: 'city street house latitude longitude';
+    -ms-grid-columns: 2.5fr 5px 4fr 5px 1fr 5px 1.5fr 5px 1.5fr;
+    grid-template-columns: 2.5fr 4fr 1fr 1.5fr 1.5fr;
+    grid-column-gap: 5px;
+}
+
+.add-route-wrapper .body input {
+    width: 100%;
+    display: block;
+    border: none;
+    border-bottom: 1px solid rgba(var(--ebonyclay), 1);
+    /* border: 1px solid transparent; */
+    /* border-radius: 3px; */
+    padding: 5px;
+    outline: none;
+}
+
+.add-route-wrapper .body input:not([disabled]) {
+    /* background-color: rgba(var(--ebonyclay), .2); */
+    background-color: transparent;
+    -webkit-transition: all .3s;
+    -o-transition: all .3s;
+    transition: all .3s;
+}
+
+.add-route-wrapper .body input:not([disabled]):hover,
+.add-route-wrapper .body input:not([disabled]):active,
+.add-route-wrapper .body input:not([disabled]):focus {
+    border-color: rgba(var(--cerulean), 1);
+    background-color: rgba(var(--white), 1);
+}
+
+.add-route-wrapper .body input[disabled] {
+    background-color: rgba(var(--ebonyclay), 1);
+    color: rgba(var(--white), 1);
+    text-align: center;
+}
+
+.add-route-wrapper .body input::-webkit-input-placeholder,
+.add-route-wrapper .body input:-moz-placeholder .add-route-wrapper .body input::-moz-placeholder .add-route-wrapper .body input:-ms-input-placeholder {
+    -webkit-transition: all .3s;
+    -o-transition: all .3s;
+    transition: all .3s;
+}
+
+.add-route-wrapper .body input:hover::-webkit-input-placeholder .add-route-wrapper .body input:hover:-moz-placeholder .add-route-wrapper .body input:hover::-moz-placeholder .add-route-wrapper .body input:hover:-ms-input-placeholder {
+    opacity: 0;
+}
+
+.add-route-wrapper .body .city {
+    -ms-grid-row: 1;
+    -ms-grid-column: 1;
+    grid-area: city;
+}
+
+.add-route-wrapper .body .street {
+    -ms-grid-row: 1;
+    -ms-grid-column: 3;
+    grid-area: street;
+}
+
+.add-route-wrapper .body .house {
+    -ms-grid-row: 1;
+    -ms-grid-column: 5;
+    grid-area: house;
+}
+
+.add-route-wrapper .body .latitude {
+    -ms-grid-row: 1;
+    -ms-grid-column: 7;
+    grid-area: latitude;
+}
+
+.add-route-wrapper .body .longitude {
+    -ms-grid-row: 1;
+    -ms-grid-column: 9;
+    grid-area: longitude;
+}
+
+.add-route-wrapper .body .latitude.isVerified,
+.add-route-wrapper .body .longitude.isVerified {
+    -webkit-animation: blink 1s infinite;
+    animation: blink 1s infinite;
+}
+
+.add-route-wrapper .footer {
+    -ms-grid-row: 1;
+    -ms-grid-row-span: 2;
+    -ms-grid-column: 2;
+    grid-area: sidebar;
+    display: -ms-grid;
+    display: grid;
+    grid-template-areas: 'cancel' 'check' 'add';
+    grid-row-gap: 5px;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+}
+
+.add-route-wrapper .footer .button {
+    text-align: center;
+    cursor: pointer;
+    -webkit-transition: all 0.3s;
+    -o-transition: all 0.3s;
+    transition: all 0.3s;
+    border-radius: 3px;
+}
+
+.add-route-wrapper .footer .button.check {
+    -ms-grid-row: 3;
+    -ms-grid-column: 1;
+    grid-area: check;
+    background: url('../images/location-search.svg') no-repeat;
+    width: 30px;
+    height: 30px;
+    background-size: 65%;
+    background-position: center;
+}
+
+.add-route-wrapper .footer .button.add {
+    -ms-grid-row: 5;
+    -ms-grid-column: 1;
+    grid-area: add;
+    background: url('../images/location-add.svg') no-repeat;
+    width: 30px;
+    height: 30px;
+    background-size: 65%;
+    background-position: center;
+}
+
+.add-route-wrapper .footer .button.cancel {
+    -ms-grid-row: 1;
+    -ms-grid-column: 1;
+    grid-area: cancel;
+    background: url('../images/close.svg') no-repeat;
+    width: 30px;
+    height: 30px;
+    background-size: 65%;
+    background-position: center;
+}
+
+/* #endregion */
+
+/* #region upload-mass */
+
+.upload-mass-frame {
+    width: 100%;
+    max-width: 650px;
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    -webkit-transform: translate(-50%, 0%);
+    -ms-transform: translate(-50%, 0%);
+    transform: translate(-50%, 0%);
+    -webkit-animation: reveal .5s;
+    animation: reveal .5s;
+    border-radius: 3px;
+    background-color: rgba(var(--ebonyclay), .2);
+    padding: 5px 30px 5px 5px;
+}
+
+.upload-mass-frame .wrapper {
+    background-color: rgba(var(--white), .9);
+    width: 100%;
+    height: 100%;
+    display: -ms-grid;
+    display: grid;
+    grid-template-areas: 'header' 'body';
+    /* grid-row-gap: 5px; */
+    cursor: default;
+    border-radius: 3px;
+    color: rgba(var(--nevada), 1);
+}
+
+.upload-mass-frame .wrapper .header {
+    -ms-grid-row: 1;
+    -ms-grid-column: 1;
+    grid-area: header;
+    text-align: center;
+    padding: 5px;
+}
+
+.upload-mass-frame .wrapper .body {
+    -ms-grid-row: 2;
+    -ms-grid-column: 1;
+    grid-area: body;
+    padding: 0 5px;
+}
+
+.upload-mass-frame .wrapper .body textarea {
+    width: 100%;
+    height: 400px;
+    resize: none;
+    border-radius: 3px;
+}
+
+.upload-mass-frame .wrapper .footer {
+    position: absolute;
+    display: -ms-grid;
+    display: grid;
+    grid-template-areas: 'cancel' 'save';
+    grid-row-gap: 5px;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.upload-mass-frame .wrapper .footer .button {
+    cursor: pointer;
+}
+
+.upload-mass-frame .wrapper .footer .button.cancel {
+    -ms-grid-row: 1;
+    -ms-grid-column: 1;
+    grid-area: cancel;
+    background: url('../images/close.svg') no-repeat;
+    width: 30px;
+    height: 30px;
+    background-size: 65%;
+    background-position: center;
+}
+
+.upload-mass-frame .wrapper .footer .button.save {
+    -ms-grid-row: 3;
+    -ms-grid-column: 1;
+    grid-area: save;
+    background: url('../images/upload-cloud.svg') no-repeat;
+    width: 30px;
+    height: 30px;
+    background-size: 65%;
+    background-position: center;
+}
+
+/* #endregion */
+
+/* #endregion */
+
+/* #region animation*/
+
+@-webkit-keyframes reveal {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes reveal {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@-webkit-keyframes blink {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: .1;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes blink {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: .1;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* #endregion */
