@@ -1,6 +1,10 @@
 define(['ymaps'], function (ymaps) {
     'use strict';
 
+    /**
+     *
+     * @class TrackHelper
+     */
     class TrackHelper {
         constructor (track) {
             this._track = {
@@ -24,6 +28,11 @@ define(['ymaps'], function (ymaps) {
         }
         set track (val) { /* this._route = val; */ } get track () { return this._track; }
 
+        /**
+         *
+         * @return
+         * @memberof TrackHelper
+         */
         async coordinates () {
             let track = this.track;
             let geo = !!track.parent.geo.lat + !!track.parent.geo.lon + !!track.child.geo.lat + !!track.child.geo.lon;
@@ -52,10 +61,6 @@ define(['ymaps'], function (ymaps) {
             }
 
             return result;
-        }
-
-        toJSON () {
-            return `{"guid":${this.track},"parent":{"city":${this.track.parent.city},"street":${this.track.parent.street},"house":${this.track.parent.house},"geo":{"lat":${this.track.parent.geo.lat},"lon":${this.track.parent.geo.lon}}},"child":{"city":${this.track.child.city},"street":${this.track.child.street},"house":${this.track.child.house},"geo":{"lat":${this.track.child.geo.lat},"lon":${this.track.child.geo.lon}}},"info":${this.track}}`;
         }
     }
 

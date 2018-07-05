@@ -1,14 +1,11 @@
 // initialize app
 require.config({
-    baseUrl: 'scripts/app',
+    baseUrl: 'scripts/src',
     paths: {
-        // 'io': '/lib/socket.io.slim',
-        // 'ymaps': '//api-maps.yandex.ru/2.0/?load=package.full&lang=ru-RU'
-        'ymaps': 'https://api-maps.yandex.ru/2.1/?lang=ru_RU',
+        'ymaps': 'https://api-maps.yandex.ru/2.1/?lang=ru_RU', // '//api-maps.yandex.ru/2.0/?load=package.full&lang=ru-RU'
         '@app': ['.']
     },
     shim: {
-        // 'io': { exports: 'io' },
         'ymaps': { exports: 'ymaps' }
     }
 });

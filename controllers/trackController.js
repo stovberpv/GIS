@@ -33,7 +33,7 @@ class Track {
                 },
                 relation: {
                     select: {
-                        default: 'SELECT guid FROM relation WHERE address_p = ? AND address_c = ?',
+                        default: 'SELECT guid FROM relation WHERE address_p = ? AND address_c = ? AND deprecated = 0',
                         rowID: 'SELECT guid FROM relation WHERE ROWID = ?'
                     },
                     insert: 'INSERT INTO relation(address_p, address_c) VALUES(?,?)'
