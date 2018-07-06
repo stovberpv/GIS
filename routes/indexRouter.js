@@ -3,7 +3,7 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
-    res.render('indexView', { title: 'TS.GEO' });
+    res.render('indexView', { title: 'TS.GIS' });
 });
 
 module.exports = router;

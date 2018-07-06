@@ -128,6 +128,14 @@ class Track {
             try { let result = await db.run(sql, [1, guid]); resolve(result); } catch (e) { reject(e); }
         });
     }
+
+    async updateRelation (data) {
+        return new Promise(async (resolve, reject) => {
+            let db = new DBHelper();
+            let sql = `UPDATE information SET text = ? WHERE relation = ?`;
+            try { let result = await db.run(sql, [data.text, data.guid]); resolve(result); } catch (e) { reject(e); }
+        });
+    }
 }
 
 module.exports = Track;

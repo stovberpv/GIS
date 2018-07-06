@@ -252,14 +252,14 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
 
                 balloonFooter: function (opts) {
                     let template =
-                        `<div>${opts.text.info}</div>
-                                </br>
-                                <div class='point-control-wrapper'>
-                                    <div class='point-data-holder' data-relation-guid='${opts.text.guid}'></div>
-                                    <div class='point-control-el point-checkbox'></div>
-                                    <div class='point-control-el point-button'>Удалить</div>
-                                </div>
-                            </div>`;
+                        `<div class='point-footer-wrapper'>
+                            <input type='text' id='info' name='info' placeholder='Комментарий' autocomplete='on' value='${opts.text.info}' data-relation-guid='${opts.text.guid}'/>
+                            <div class='point-controls'>
+                                <div id='checkbox'      class='point-control point-checkbox'></div>
+                                <div id='button-remove' class='point-control point-button remove'>Удалить</div>
+                                <div id='button-save'   class='point-control point-button save'>Сохранить</div>
+                            </div>
+                        </div>`;
                     return template;
                 }
             };
@@ -296,23 +296,36 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
         bindMapEvents () {
             document.getElementById(this._attachTo).addEventListener('click', function (e) {
                 let target = e.target;
-                let wrapper = target.closest('.point-control-wrapper');
-                let isDeleted = false;
-                let guid;
+                let wrapper = target.closest('.point-footer-wrapper');
 
                 if (!wrapper) return;
 
-                if (target.classList.contains('point-checkbox')) {
-                    target.classList.toggle('selected');
-                } else if (target.classList.contains('point-button')) {
-                    let cb = wrapper.querySelector('.point-checkbox');
-                    if (cb.classList.contains('selected')) {
-                        let data = wrapper.querySelector('.point-data-holder');
-                        guid = data.dataset.relationGuid;
-                        isDeleted = !!guid;
-                    }
+                let guid = wrapper.querySelector('input#info').dataset.relationGuid;
+
+                function removeClicked () {
+                    let isDelSelected = wrapper.querySelector('#checkbox').classList.contains('selected') ? !!guid : false;
+                    isDelSelected && globals.socket.emit('removeRelation', guid);
                 }
-                isDeleted && globals.socket.emit('removeRelation', guid);
+
+                function saveClicked () {
+                    let inputInfo = wrapper.querySelector('input#info');
+                    inputInfo.classList.contains('edited') && globals.socket.emit('updateRelation', { guid: guid, text: inputInfo.value });
+                }
+
+                switch (target.id) {
+                    case 'checkbox': target.classList.toggle('selected'); break;
+                    case 'button-remove':removeClicked(); break;
+                    case 'button-save': saveClicked(); break;
+                    default: break;
+                }
+            });
+
+            document.getElementById(this._attachTo).addEventListener('keypress', function (e) {
+                let target = e.target;
+                let wrapper = target.closest('.point-footer-wrapper');
+                if (!wrapper) return;
+                if (target.id !== 'info') return;
+                !target.classList.contains('edited') && target.classList.add('edited');
             });
         }
 
@@ -391,7 +404,6 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
             }));
 
             let clusterer = self.clusterer(points);
-
             self._ymap.geoObjects.add(clusterer);
         }
 

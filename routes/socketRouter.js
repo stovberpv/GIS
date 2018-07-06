@@ -37,8 +37,17 @@ async function addRelation (socketData) {
     relation.deprecated === 0 && this.emit('addedRelation', relation);
 }
 
+async function updateRelation (socketData) {
+    'use strict';
+
+    let relation;
+    try { relation = await new TrackController().updateRelation(socketData); } catch (e) { return; }
+    relation.changes !== 0 && this.emit('updatedRelation', socketData.guid);
+}
+
 module.exports = {
     mapRequest: mapRequest,
     removeRelation: removeRelation,
+    updateRelation: updateRelation,
     addRelation: addRelation
 };

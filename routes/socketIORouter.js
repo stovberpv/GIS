@@ -8,6 +8,7 @@ module.exports = function (socketio) {
         log('New connection established');
         socket.on('addRelation', socketRouter.addRelation.bind(socket));
         socket.on('removeRelation', socketRouter.removeRelation.bind(socket));
+        socket.on('updateRelation', socketRouter.updateRelation.bind(socket));
         socket.on('mapRequest', socketRouter.mapRequest.bind(socket));
     }
 
