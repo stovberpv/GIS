@@ -2,7 +2,7 @@ var app = require.main.require('../app');
 var debug = require('debug')('gis:server');
 var http = require('http');
 
-var port = normalizePort(process.env.PORT || '3000'); // TODO : env
+var port = normalizePort(process.env.PORT || '8080'); // TODO : env
 app.set('port', port);
 
 var server = http.createServer(app);

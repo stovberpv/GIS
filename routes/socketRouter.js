@@ -1,5 +1,9 @@
 var TrackController = require.main.require('../controllers/trackController');
 
+/**
+ *
+ * @param {*} socketData
+ */
 async function mapRequest (socketData) {
     'use strict';
 
@@ -11,7 +15,11 @@ async function mapRequest (socketData) {
     this.emit('mapRequested', tracks);
 }
 
-async function removeRelation (socketData) {
+/**
+ *
+ * @param {*} socketData
+ */
+async function removeRelation (binded, socketData) {
     'use strict';
 
     let relation;
@@ -21,10 +29,14 @@ async function removeRelation (socketData) {
 
     relation = relation[0] ? relation[0] : {};
 
-    relation.deprecated === 1 && this.emit('removedRelation', relation);
+    relation.deprecated === 1 && binded.io.emit('removedRelation', relation);
 }
 
-async function addRelation (socketData) {
+/**
+ *
+ * @param {*} socketData
+ */
+async function addRelation (binded, socketData) {
     'use strict';
 
     let relation;
@@ -34,15 +46,23 @@ async function addRelation (socketData) {
 
     relation = relation[0] ? relation[0] : {};
 
-    relation.deprecated === 0 && this.emit('addedRelation', relation);
+    relation.deprecated === 0 && binded.io.emit('addedRelation', relation);
 }
 
-async function updateRelation (socketData) {
+/**
+ *
+ * @param {*} socketData
+ */
+async function updateRelation (binded, socketData) {
     'use strict';
 
     let relation;
     try { relation = await new TrackController().updateRelation(socketData); } catch (e) { return; }
-    relation.changes !== 0 && this.emit('updatedRelation', socketData.guid);
+    try { relation = await new TrackController().getRelation(socketData.guid); } catch (e) { return; }
+
+    relation = relation[0] ? relation[0] : {};
+
+    relation.deprecated === 0 && binded.io.emit('updatedRelation', relation);
 }
 
 module.exports = {

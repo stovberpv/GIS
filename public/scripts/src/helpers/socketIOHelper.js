@@ -29,6 +29,11 @@ define([
      *
      * @return {void}
      */
+    function onUpdatedRelation () { globals.socket.on('updatedRelation', ymapController.onUpdatedRelation); }
+    /**
+     *
+     * @return {void}
+     */
     function onRemovedRelation () { globals.socket.on('removedRelation', ymapController.onRemovedRelation); }
     /**
      *
@@ -41,6 +46,7 @@ define([
         onConnect: onConnect,
         onMapRequisition: onMapRequisition,
         onAddedRelation: onAddedRelation,
+        onUpdatedRelation: onUpdatedRelation,
         onRemovedRelation: onRemovedRelation,
         mapRequest: mapRequest
     };

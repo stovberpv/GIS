@@ -1,8 +1,8 @@
 define([], function () {
     return {
         socketConnection: {
-            host: 'http://localhost',
-            port: '3000'
+            host: 'http://192.168.0.107',
+            port: '8080'
         }
     };
 });
