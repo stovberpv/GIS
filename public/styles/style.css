@@ -57,6 +57,10 @@ body {
     border: 1px solid transparent;
 }
 
+#map .ymaps-2-1-65-b-cluster-tabs__section_type_nav {
+    width: 200px !important;
+}
+
 /* #endregion */
 
 /* #region info */
