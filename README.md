@@ -68,7 +68,7 @@ Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c6
 
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags).
 
 ## Authors
 
@@ -93,7 +93,7 @@ CREATE TABLE address (
                      UNIQUE
                      NOT NULL
                      DEFAULT (lower(hex(randomblob(16) ) ) ),
-    city   BLOB (32) REFERENCES city (guid) 
+    city   BLOB (32) REFERENCES city (guid)
                      NOT NULL,
     street TEXT,
     house  TEXT
@@ -120,7 +120,7 @@ CREATE TABLE information (
                        UNIQUE
                        NOT NULL
                        DEFAULT (lower(hex(randomblob(16) ) ) ),
-    relation BLOB (32) REFERENCES relation (guid) 
+    relation BLOB (32) REFERENCES relation (guid)
                        NOT NULL,
     text     TEXT
 );
@@ -129,11 +129,11 @@ CREATE TABLE relation (
                          UNIQUE
                          NOT NULL
                          DEFAULT (lower(hex(randomblob(16) ) ) ),
-    address_p  BLOB (32) REFERENCES address (guid) 
+    address_p  BLOB (32) REFERENCES address (guid)
                          NOT NULL,
-    address_c  BLOB (32) REFERENCES address (guid) 
+    address_c  BLOB (32) REFERENCES address (guid)
                          NOT NULL,
-    override   BOOLEAN   DEFAULT (0) 
+    override   BOOLEAN   DEFAULT (0)
                          NOT NULL,
     deprecated BOOLEAN   NOT NULL
                          DEFAULT (0),
@@ -155,11 +155,11 @@ CREATE TABLE relation (
                          UNIQUE
                          NOT NULL
                          DEFAULT (lower(hex(randomblob(16) ) ) ),
-    address_p  BLOB (32) REFERENCES address (guid) 
+    address_p  BLOB (32) REFERENCES address (guid)
                          NOT NULL,
-    address_c  BLOB (32) REFERENCES address (guid) 
+    address_c  BLOB (32) REFERENCES address (guid)
                          NOT NULL,
-    override   BOOLEAN   DEFAULT (0) 
+    override   BOOLEAN   DEFAULT (0)
                          NOT NULL,
     deprecated BOOLEAN   NOT NULL
                          DEFAULT (0),
@@ -183,4 +183,32 @@ INSERT INTO relation (
 DROP TABLE sqlitestudio_temp_table;
 
 PRAGMA foreign_keys = 1;
+
+CREATE TABLE users (
+    guid     BLOB (32)   PRIMARY KEY
+                         UNIQUE
+                         NOT NULL
+                         DEFAULT (lower(hex(randomblob(16) ) ) ),
+    login    TEXT        UNIQUE
+                         NOT NULL,
+    password TEXT        NOT NULL,
+    info     TEXT,
+    active   BOOLEAN (1) NOT NULL
+                         DEFAULT (1)
+);
+
+CREATE TABLE history (
+    guid     BLOB (32) DEFAULT (lower(hex(randomblob(16) ) ) )
+                       NOT NULL
+                       PRIMARY KEY
+                       UNIQUE,
+    uname    BLOB (32) REFERENCES users (guid),
+    ip       TEXT      DEFAULT ('0.0.0.0')
+                       NOT NULL,
+    date     DATETIME  DEFAULT (CURRENT_TIMESTAMP)
+                       NOT NULL,
+    [action] TEXT,
+    info     TEXT
+);
+
 

@@ -520,7 +520,7 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
                 geodesic: true,
                 strokeColor: '#1E98FF',
                 strokeWidth: 5,
-                opacity: 0.5
+                opacity: 0.6
             };
 
             return new ymaps.GeoObject({ geometry: geometry, properties: properties }, options);
@@ -541,15 +541,15 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
 
             let properties = {
                 guid: data.guid,
-                clusterCaption: data.clusterCaption, // `КК${data.child.street} ${data.child.house}`,
-                hintContent: data.hintContent, // `ХК${data.child.street} ${data.child.house}`,
-                balloonContentHeader: data.balloonHeader, // `БХ${data.child.street} ${data.child.house}`,
-                balloonContentBody: data.balloonBody, // `ББ[${data.parent.street} ${data.parent.house}]`,
+                clusterCaption: data.clusterCaption,
+                hintContent: data.hintContent,
+                balloonContentHeader: data.balloonHeader,
+                balloonContentBody: data.balloonBody,
                 balloonContentFooter: this._popupFowms.balloonFooter({ text: { info: data.info, guid: data.guid } })
             };
 
             let options = {
-                preset: 'islands#glyphCircleIcon', // glyphIcon glyphCircleIcon
+                preset: 'islands#circleDotIcon', // glyphIcon glyphCircleIcon
                 iconGlyph: '', /* transfer sort | asterisk certificate | flash  */
                 iconGlyphColor: '#1E98FF'
             };
@@ -586,7 +586,7 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
                     {{ properties.geoObjects.length }}
                 </div>`);
             let options = {
-                preset: 'islands#invertedBlackClusterIcons',
+                preset: 'islands#invertedGrayClusterIcons',
                 // clusterIcons: clusterIcons,
                 // clusterIconContentLayout: tlf,
                 clusterDisableClickZoom: true

@@ -10,12 +10,15 @@ require.config({
     }
 });
 
-require(['@app/helpers/socketioHelper'], function (socketio) {
-    socketio.init();
-    socketio.onConnect();
-    socketio.onMapRequisition();
-    socketio.onAddedRelation();
-    socketio.onUpdatedRelation();
-    socketio.onRemovedRelation();
-    socketio.mapRequest();
+require(['@app/routes/socketRouter'], function (socket) {
+    socket.init();
+    socket.onConnect();
+
+    if (!document.getElementById('map-page')) return;
+
+    socket.onMapRequisition();
+    socket.onAddedRelation();
+    socket.onUpdatedRelation();
+    socket.onRemovedRelation();
+    socket.mapRequest();
 });

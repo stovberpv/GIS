@@ -3,7 +3,8 @@ var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+var expressLayouts = require('express-ejs-layouts');
+// var logger = require('morgan');
 
 var indexRouter = require.main.require('../routes/indexRouter');
 
@@ -12,8 +13,10 @@ var app = express();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+app.set('layout', 'layout');
 
-app.use(logger('dev'));
+// app.use(logger('dev'));
+app.use(expressLayouts);
 app.use('/favicon.ico', express.static(path.join(__dirname, '/public/images/favicon.png')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

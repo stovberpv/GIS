@@ -1,5 +1,5 @@
 var app = require.main.require('../app');
-var debug = require('debug')('gis:server');
+// var debug = require('debug')('gis:server');
 var http = require('http');
 
 var port = normalizePort(process.env.PORT || '8080'); // TODO : env
@@ -53,7 +53,7 @@ function onError (error) {
 function onListening () {
     var addr = server.address();
     var bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
-    debug('Listening on ' + bind);
+    // debug('Listening on ' + bind);
 }
 
 module.exports = { server: server, port: port, http: http };
