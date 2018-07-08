@@ -5,6 +5,12 @@ const cv = require.main.require('../config/console');
 module.exports = function (socketio) {
     'use strict';
 
+    /**
+     * Вызывается при установке socket-соединения.
+     * Задает траггеры вызовов.
+     *
+     * @param {Object} socket Объект соединения.
+     */
     function onConnection (socket) {
         log(`${cv.FgBlue}New connection established. ${cv.FgCyan}IP::${socket.request.connection.remoteAddress}${cv.Reset}`);
         socket.on('addRelation', socketRouter.addRelation.bind(null, { io: socketio, socket: socket }));

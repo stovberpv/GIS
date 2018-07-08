@@ -1,8 +1,18 @@
 define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseDelay'], function (globals, ymaps, TrackHelper, delay) {
     'use strict';
 
+    /**
+     *
+     *
+     * @class Ymap
+     */
     class Ymap {
-        constructor (opts) {
+        /**
+         *Creates an instance of Ymap.
+         * @param {*} opts
+         * @memberof Ymap
+         */
+        constructor(opts) {
             this._ymap = null;
 
             this._attachTo = opts ? opts.attachTo : 'map';
@@ -71,7 +81,7 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
                         return new ymaps.control.Button({ data: data, options: options });
                     })();
 
-                    function pressEvent () {
+                    function pressEvent() {
                         let template = self._popupFowms.newTrack();
                         template.querySelector('.footer .button.check').addEventListener('click', self._buttons.getGeo.bind(self));
                         template.querySelector('.footer .button.add').addEventListener('click', self._buttons.saveOne.bind(self));
@@ -92,7 +102,7 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
                         return new ymaps.control.Button({ data: data, options: options });
                     })();
 
-                    function pressEvent () {
+                    function pressEvent() {
                         let template = self._popupFowms.massUpload();
                         template.querySelector('.footer .button.save').addEventListener('click', self._buttons.saveMass.bind(self));
                         template.querySelector('.footer .button.cancel').addEventListener('click', self._buttons.cancel);
@@ -275,15 +285,25 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
             return this;
         }
 
-        set attachTo (val) { this._attachTo = val; } get attachTo () { return this._attachTo; }
-        set ymap (val) { /* this._ymap = val; */ } get ymap () { return this._ymap; }
+        /**
+         *
+         *
+         * @memberof Ymap
+         */
+        set attachTo(val) { this._attachTo = val; } get attachTo() { return this._attachTo; }
+        /**
+         *
+         *
+         * @memberof Ymap
+         */
+        set ymap(val) { /* this._ymap = val; */ } get ymap() { return this._ymap; }
 
         /**
          *
          * @return
          * @memberof Ymap
          */
-        init () {
+        init() {
             return new Promise(async (resolve, reject) => {
                 try { await ymaps.ready(); resolve(); } catch (e) { reject(); }
             });
@@ -293,7 +313,7 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
          *
          * @return {void}@memberof Ymap
          */
-        attach () {
+        attach() {
             this._ymap = new ymaps.Map(this._attachTo, { center: this._defCoord, controls: this._defControls, zoom: this._defZoom }, this._defOpts);
         }
 
@@ -301,10 +321,10 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
          *
          * @return {void}@memberof Ymap
          */
-        bindMapEvents () {
+        bindMapEvents() {
             let self = this;
 
-            function clicked (e) {
+            function clicked(e) {
                 let target = e.target;
 
                 let wrapper = target.closest('.point-footer-wrapper');
@@ -321,7 +341,7 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
                 }
             }
 
-            function keypressed (e) {
+            function keypressed(e) {
                 let target = e.target;
                 let wrapper = target.closest('.point-footer-wrapper');
                 if (!wrapper) return;
@@ -338,16 +358,16 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
          * @param  {any} target
          * @return {void}@memberof Ymap
          */
-        bindGeoObjEvents (target) {
+        bindGeoObjEvents(target) {
             target.events.add(['hover', 'mouseleave'], function (e) {
                 let target = e.get('target');
                 let type = e.get('type');
                 if (type === 'hover') {
                     target.options.set('strokeColor', '#FF0000');
-                    target.options.set('iconGlyphColor', '#FF0000');
+                    // target.options.set('iconGlyphColor', '#FF0000');
                 } else {
                     target.options.set('strokeColor', '#1E98FF');
-                    target.options.set('iconGlyphColor', '#1E98FF');
+                    // target.options.set('iconGlyphColor', '#1E98FF');
                 }
             });
         }
@@ -356,7 +376,7 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
          *
          * @return {void}@memberof Ymap
          */
-        addControl () {
+        addControl() {
             this._ymap.controls.add(this._buttons.inputOne());
             this._ymap.controls.add(this._buttons.inputMass());
         }
@@ -367,7 +387,7 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
          * @return
          * @memberof Ymap
          */
-        async addRelation (relations) {
+        async addRelation(relations) {
             let self = this;
             // Координатные точки добавялемые на карту через кластеризатор
             let points = [];
@@ -430,7 +450,7 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
          *
          * @param {*} relation
          */
-        updateRelation (relations) {
+        updateRelation(relations) {
             let self = this;
 
             relations.forEach(relation => {
@@ -466,7 +486,7 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
          * @param  {any} relation
          * @return {void}@memberof Ymap
          */
-        removeRelation (relation) {
+        removeRelation(relation) {
             let self = this;
             self._ymap.geoObjects.each(o => {
                 switch (o.options.getName()) {
@@ -484,7 +504,7 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
          * @return
          * @memberof Ymap
          */
-        lineString (track, coordinates) {
+        lineString(track, coordinates) {
             let geometry = {
                 type: 'LineString',
                 coordinates: coordinates
@@ -500,8 +520,7 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
                 geodesic: true,
                 strokeColor: '#1E98FF',
                 strokeWidth: 5,
-                opacity: 0.5,
-                animationTime: 10000
+                opacity: 0.5
             };
 
             return new ymaps.GeoObject({ geometry: geometry, properties: properties }, options);
@@ -514,7 +533,7 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
          * @return
          * @memberof Ymap
          */
-        point (data) {
+        point(data) {
             let geometry = {
                 type: 'Point',
                 coordinates: data.coordinates
@@ -530,9 +549,9 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
             };
 
             let options = {
-                preset: 'islands#glyphCircleIcon',
-                iconGlyph: 'certificate', /* transfer sort | asterisk certificate | flash  */
-                iconGlyphColor: '#FFE100'
+                preset: 'islands#glyphCircleIcon', // glyphIcon glyphCircleIcon
+                iconGlyph: '', /* transfer sort | asterisk certificate | flash  */
+                iconGlyphColor: '#1E98FF'
             };
 
             return new ymaps.GeoObject({ geometry: geometry, properties: properties }, options);
@@ -544,10 +563,33 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
          * @return
          * @memberof Ymap
          */
-        clusterer (points) {
+        clusterer(points) {
+            var clusterIcons = [
+                {
+                    href: '',
+                    size: [50, 50],
+                    offset: [-25, -25]
+                }
+            ];
+            let tlf = ymaps.templateLayoutFactory.createClass(
+                `<div
+                    style="
+                        width: 50px;
+                        height: 50px;
+                        box-shadow: 0 0 10px 0 rgba(039, 046, 057, .7);
+                        background-color: rgba(054, 064, 080, .7);
+                        border-radius: 100%;
+                        color: rgba(255, 255, 255, 1);
+                        font-weight: bold;
+                        line-height: 50px;
+                    ">
+                    {{ properties.geoObjects.length }}
+                </div>`);
             let options = {
-                clusterDisableClickZoom: true,
-                preset: 'islands#invertedBlueClusterIcons'
+                preset: 'islands#invertedBlackClusterIcons',
+                // clusterIcons: clusterIcons,
+                // clusterIconContentLayout: tlf,
+                clusterDisableClickZoom: true
             };
 
             let clusterer = new ymaps.Clusterer(options);

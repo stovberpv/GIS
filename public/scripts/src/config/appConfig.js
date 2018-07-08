@@ -1,5 +1,6 @@
 define([], function () {
     return {
+        // Конфигурация socket-соединения
         socketConnection: {
             host: {
                 current: 'http://localhost',

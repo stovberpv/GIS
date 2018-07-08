@@ -1,8 +1,11 @@
 var TrackController = require.main.require('../controllers/trackController');
 
 /**
+ * Получает все соединения.
+ * Отправляет socket-сообщение клиенту с полученными данными.
  *
  * @param {*} socketData
+ * @returns {Void}
  */
 async function mapRequest (socketData) {
     'use strict';
@@ -16,8 +19,12 @@ async function mapRequest (socketData) {
 }
 
 /**
+ * Помечает соединение устаревшим.
+ * Отправляет socket-сообщение всем клиентам с обработанными данными.
  *
- * @param {*} socketData
+ * @param {Object} binded Объекты соединения клиента и сервера.
+ * @param {Object} socketData Данные соединения.
+ * @returns {Void}
  */
 async function removeRelation (binded, socketData) {
     'use strict';
@@ -33,8 +40,11 @@ async function removeRelation (binded, socketData) {
 }
 
 /**
+ * Добавляет новое соединения
  *
- * @param {*} socketData
+ * @param {Object} binded Объекты соединения клиента и сервера.
+ * @param {Object} socketData Данные соединения.
+ * @returns {Void}
  */
 async function addRelation (binded, socketData) {
     'use strict';
@@ -50,8 +60,11 @@ async function addRelation (binded, socketData) {
 }
 
 /**
+ * Обновляет соединение.
  *
- * @param {*} socketData
+ * @param {Object} binded Объекты соединения клиента и сервера.
+ * @param {Object} socketData Данные соединения.
+ * @returns {Void}
  */
 async function updateRelation (binded, socketData) {
     'use strict';

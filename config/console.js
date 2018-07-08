@@ -1,5 +1,6 @@
 'use strict';
 
+// Цвета консоли.
 const cfg = {
     Reset: '\x1b[0m',
     Bright: '\x1b[1m',

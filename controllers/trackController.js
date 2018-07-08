@@ -2,9 +2,26 @@
 
 const DBHelper = require.main.require('../helpers/databaseHelper');
 
+/**
+ * Позволяет управлять соединениями узловых точек.
+ *
+ * @class Track
+ */
 class Track {
+    /**
+     *Creates an instance of Track.
+     * @memberof Track
+     */
     constructor () { return this; }
 
+    /**
+     * Создает или обновляет уже существующее соединение.
+     * Добавляет отсутствующие записи адресов и координат в таблицах.
+     *
+     * @param {Object} data Описание соединения предок-потомок.
+     * @returns {Promise.<String, Error>} GUID соединения.
+     * @memberof Track
+     */
     async addRelation (data) {
         return new Promise(async (resolve, reject) => {
             let db;
@@ -88,6 +105,13 @@ class Track {
         });
     }
 
+    /**
+     * Возвращает все соединения или одно, если передан его guid.
+     *
+     * @param {String} guid Уникальный идентификатор соединения.
+     * @returns {Promise.<Array, Error>} Соединения.
+     * @memberof Track
+     */
     async getRelation (guid) {
         return new Promise(async (resolve, reject) => {
             let db = new DBHelper();
@@ -121,6 +145,13 @@ class Track {
         });
     }
 
+    /**
+     * Помечает соединения устаревшим.
+     *
+     * @param {String} guid Уникальный идентификатор соединения.
+     * @returns {Promise.<Object, Error>} Статус обработки SQL запроса.
+     * @memberof Track
+     */
     async removeRelation (guid) {
         return new Promise(async (resolve, reject) => {
             let db = new DBHelper();
@@ -129,6 +160,13 @@ class Track {
         });
     }
 
+    /**
+     * Обновляет данные соединения.
+     *
+     * @param {Object} data Данные соединения.
+     * @returns {Promise.<Object, Error>} Статус обработки SQL запроса.
+     * @memberof Track
+     */
     async updateRelation (data) {
         return new Promise(async (resolve, reject) => {
             let db = new DBHelper();

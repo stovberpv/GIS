@@ -7,10 +7,15 @@ app.set('port', port);
 
 var server = http.createServer(app);
 
-// server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 
+/**
+ *
+ *
+ * @param {*} val
+ * @returns
+ */
 function normalizePort (val) {
     var port = parseInt(val, 10);
 
@@ -20,6 +25,11 @@ function normalizePort (val) {
     return false;
 }
 
+/**
+ *
+ *
+ * @param {*} error
+ */
 function onError (error) {
     if (error.syscall !== 'listen') { throw error; }
 
@@ -36,6 +46,10 @@ function onError (error) {
     }
 }
 
+/**
+ *
+ *
+ */
 function onListening () {
     var addr = server.address();
     var bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;

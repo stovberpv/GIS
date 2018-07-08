@@ -83,12 +83,12 @@ body {
     -o-transition: all .5s;
     transition: all .5s;
 }
-
+/*
 #map .point-footer-wrapper input#info.edited {
-    /* background-color: rgba(var(--malachite), .1);
-    border-color: rgba(var(--malachite), .1); */
+    background-color: rgba(var(--malachite), .1);
+    border-color: rgba(var(--malachite), .1);
 }
-
+ */
 /* #endregion */
 
 /* #region check-box */
@@ -124,11 +124,11 @@ body {
         -ms-user-select: none;
             user-select: none;
 }
-
+/*
 #map .point-footer-wrapper .point-button.remove {
-    /* border-color: rgba(var(--carnation), 1); */
+    border-color: rgba(var(--carnation), 1);
 }
-
+ */
 #map .point-footer-wrapper .point-checkbox:not(.selected) + .point-button.remove,
 #map .point-footer-wrapper input#info:not(.edited) ~ .point-controls .point-button.save {
     background-color: rgba(var(--mercury), 1);
@@ -499,7 +499,7 @@ body {
     /* grid-row-gap: 5px; */
     cursor: default;
     border-radius: 3px;
-    color: rgba(var(--nevada), 1);
+    color: rgba(var(--ebonyclay), 1);
 }
 
 .upload-mass-frame .wrapper .header {

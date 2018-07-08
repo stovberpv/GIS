@@ -6,6 +6,11 @@ define(['ymaps'], function (ymaps) {
      * @class TrackHelper
      */
     class TrackHelper {
+        /**
+         *Creates an instance of TrackHelper.
+         * @param {*} track
+         * @memberof TrackHelper
+         */
         constructor (track) {
             this._track = {
                 guid: track.guid,
@@ -26,6 +31,11 @@ define(['ymaps'], function (ymaps) {
 
             return this;
         }
+        /**
+         *
+         *
+         * @memberof TrackHelper
+         */
         set track (val) { /* this._route = val; */ } get track () { return this._track; }
 
         /**
