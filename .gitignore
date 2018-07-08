@@ -60,7 +60,7 @@ typings/
 .yarn-integrity
 
 # dotenv environment variables file
-.env
+#.env
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -132,13 +132,13 @@ $RECYCLE.BIN/
 x64/
 x86/
 bld/
-[Bb]in/
+#[Bb]in/
 [Oo]bj/
 [Ll]og/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
-# Uncomment if you have tasks that create the project's static files in wwwroot
+# Uncomment if you have tasks that create the project's static files in #wwwroot
 #wwwroot/
 
 # Visual Studio 2017 auto generated files
@@ -450,3 +450,4 @@ ASALocalRun/
 
 # Visual Studio Code
 .vscode/
+package-lock.json
