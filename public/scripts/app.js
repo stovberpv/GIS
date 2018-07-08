@@ -15,6 +15,7 @@ require(['@app/helpers/socketioHelper'], function (socketio) {
     socketio.onConnect();
     socketio.onMapRequisition();
     socketio.onAddedRelation();
+    socketio.onUpdatedRelation();
     socketio.onRemovedRelation();
     socketio.mapRequest();
 });

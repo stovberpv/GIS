@@ -6,11 +6,12 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
             this._attachTo = opts ? opts.attachTo : 'map';
             this.defCoord = [44.952116, 34.102411];
             this.defControls = ['zoomControl', 'typeSelector', 'fullscreenControl', 'rulerControl'];
+            this.defOpts = { suppressMapOpenBlock: true };
             this.defZoom = 13;
 
             this._ymap = null;
 
-            this._func = {
+            this._customControlsHandler = {
                 getGeo: async function (e) {
                     let wrapper = e.target.closest('.add-route-wrapper');
 
@@ -68,7 +69,7 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
 
                     if (!wrapper) return;
 
-                    try { await self._func.getGeo(e); } catch (e) { return; };
+                    try { await self._customControlsHandler.getGeo(e); } catch (e) { return; };
 
                     let data = {
                         parent: wrapper.querySelectorAll('.parent input'),
@@ -91,7 +92,7 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
 
                     globals.socket.emit('addRelation', relation);
 
-                    self._func.cancel(e);
+                    self._customControlsHandler.cancel(e);
                 },
 
                 saveMass: async function (e) {
@@ -140,7 +141,7 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
                         globals.socket.emit('addRelation', relation);
                     }
 
-                    self._func.cancel(e);
+                    self._customControlsHandler.cancel(e);
                 },
 
                 cancel: function (e) {
@@ -161,9 +162,9 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
 
                     function pressEvent () {
                         let template = self._popupFowms.newTrack();
-                        template.querySelector('.footer .button.check').addEventListener('click', self._func.getGeo.bind(self));
-                        template.querySelector('.footer .button.add').addEventListener('click', self._func.saveSingle.bind(self));
-                        template.querySelector('.footer .button.cancel').addEventListener('click', self._func.cancel);
+                        template.querySelector('.footer .button.check').addEventListener('click', self._customControlsHandler.getGeo.bind(self));
+                        template.querySelector('.footer .button.add').addEventListener('click', self._customControlsHandler.saveSingle.bind(self));
+                        template.querySelector('.footer .button.cancel').addEventListener('click', self._customControlsHandler.cancel);
 
                         document.body.appendChild(template);
                     }
@@ -182,8 +183,8 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
 
                     function pressEvent () {
                         let template = self._popupFowms.massUpload();
-                        template.querySelector('.footer .button.save').addEventListener('click', self._func.saveMass.bind(self));
-                        template.querySelector('.footer .button.cancel').addEventListener('click', self._func.cancel);
+                        template.querySelector('.footer .button.save').addEventListener('click', self._customControlsHandler.saveMass.bind(self));
+                        template.querySelector('.footer .button.cancel').addEventListener('click', self._customControlsHandler.cancel);
 
                         document.body.appendChild(template);
                     }
@@ -191,6 +192,19 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
                     button.events.add('press', pressEvent);
 
                     return button;
+                },
+                remove: function (e, data) {
+                    if (!e.querySelector('#checkbox').classList.contains('selected')) return;
+
+                    globals.socket.emit('removeRelation', data.guid);
+                },
+                update: function (e, data) {
+                    let inputInfo = e.querySelector('input#info');
+                    if (!inputInfo.classList.contains('edited')) return;
+
+                    inputInfo.classList.remove('edited');
+
+                    globals.socket.emit('updateRelation', { guid: data.guid, text: inputInfo.value });
                 }
             };
 
@@ -286,7 +300,7 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
          * @return {void}@memberof Ymap
          */
         attach () {
-            this._ymap = new ymaps.Map(this._attachTo, { center: this.defCoord, controls: this.defControls, zoom: this.defZoom });
+            this._ymap = new ymaps.Map(this._attachTo, { center: this.defCoord, controls: this.defControls, zoom: this.defZoom }, this.defOpts);
         }
 
         /**
@@ -294,39 +308,35 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
          * @return {void}@memberof Ymap
          */
         bindMapEvents () {
-            document.getElementById(this._attachTo).addEventListener('click', function (e) {
-                let target = e.target;
-                let wrapper = target.closest('.point-footer-wrapper');
+            let self = this;
 
+            function clicked (e) {
+                let target = e.target;
+
+                let wrapper = target.closest('.point-footer-wrapper');
                 if (!wrapper) return;
 
                 let guid = wrapper.querySelector('input#info').dataset.relationGuid;
-
-                function removeClicked () {
-                    let isDelSelected = wrapper.querySelector('#checkbox').classList.contains('selected') ? !!guid : false;
-                    isDelSelected && globals.socket.emit('removeRelation', guid);
-                }
-
-                function saveClicked () {
-                    let inputInfo = wrapper.querySelector('input#info');
-                    inputInfo.classList.contains('edited') && globals.socket.emit('updateRelation', { guid: guid, text: inputInfo.value });
-                }
+                if (!guid) return;
 
                 switch (target.id) {
                     case 'checkbox': target.classList.toggle('selected'); break;
-                    case 'button-remove':removeClicked(); break;
-                    case 'button-save': saveClicked(); break;
+                    case 'button-remove': self._buttons.remove(wrapper, { guid: guid }); break;
+                    case 'button-save': self._buttons.update(wrapper, { guid: guid }); break;
                     default: break;
                 }
-            });
+            }
 
-            document.getElementById(this._attachTo).addEventListener('keypress', function (e) {
+            function keypressed (e) {
                 let target = e.target;
                 let wrapper = target.closest('.point-footer-wrapper');
                 if (!wrapper) return;
                 if (target.id !== 'info') return;
                 !target.classList.contains('edited') && target.classList.add('edited');
-            });
+            }
+
+            document.getElementById(this._attachTo).addEventListener('click', clicked);
+            document.getElementById(this._attachTo).addEventListener('keypress', keypressed);
         }
 
         /**
@@ -359,18 +369,19 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
 
         /**
          *
-         * @param  {any} relation
-         * @return {void}@memberof Ymap
+         * @param {*} relation
          */
-        removeRelation (relation) {
-            let self = this;
-            self._ymap.geoObjects.each(o => {
-                switch (o.options.getName()) {
-                    case 'geoObject': o.properties.get('guid') === relation.guid && self._ymap.geoObjects.remove(o); break;
-                    case 'clusterer': o.getGeoObjects().forEach(p => p.properties.get('guid') === relation.guid && o.remove(p)); break;
-                    default: break;
-                }
-            });
+        addRelation (relation) {
+            this.onAddedRelation(relation);
+        }
+
+        /**
+         *
+         * @param {*} geoObject
+         * @param {*} data
+         */
+        updateRelation (geoObject, data) {
+
         }
 
         /**
@@ -379,32 +390,114 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
          * @return
          * @memberof Ymap
          */
-        async addRelation (relations) {
+        async onAddedRelation (relations) {
             let self = this;
             // Координатные точки добавялемые на карту через кластеризатор
             let points = [];
+            let lines = [];
             // Данные должны быть переданы массивом
             if (!Array.isArray(relations)) { return; }
             //
             await Promise.all([1].map(async () => {
                 for (let relation of relations) {
-                    let track = new TrackHelper(relation);
-                    let coordinates = await track.coordinates();
-                    let line = self.lineString(track.track, coordinates);
-                    let pointA = self.point(track.track, coordinates[0]);
-                    let pointB = self.point(track.track, coordinates[1]);
-                    self.bindGeoObjEvents(line);
-                    self.bindGeoObjEvents(pointA);
-                    self.bindGeoObjEvents(pointB);
+                    let coordinates;
 
-                    self._ymap.geoObjects.add(line);
-                    points.push(pointA);
-                    points.push(pointB);
+                    let th = new TrackHelper(relation);
+                    try { coordinates = await th.coordinates(); } catch (e) { return; };
+
+                    (() => {
+                        let line = self.lineString(th.track, coordinates);
+                        self.bindGeoObjEvents(line);
+                        lines.push(line);
+                    })();
+
+                    (() => {
+                        let trackData = {
+                            guid: th.track.guid,
+                            clusterCaption: `${th.track.parent.street} ${th.track.parent.house}`,
+                            hintContent: `${th.track.parent.street} ${th.track.parent.house}`,
+                            balloonHeader: `${th.track.parent.street} ${th.track.parent.house}`,
+                            balloonBody: `${th.track.child.street} ${th.track.child.house}`,
+                            info: th.track.info,
+                            coordinates: coordinates[0]
+                        };
+                        let point = self.point(trackData);
+                        self.bindGeoObjEvents(point);
+                        points.push(point);
+                    })();
+
+                    (() => {
+                        let trackData = {
+                            guid: th.track.guid,
+                            clusterCaption: `${th.track.child.street} ${th.track.child.house}`,
+                            hintContent: `${th.track.child.street} ${th.track.child.house}`,
+                            balloonHeader: `${th.track.child.street} ${th.track.child.house}`,
+                            balloonBody: `${th.track.parent.street} ${th.track.parent.house}`,
+                            info: th.track.info,
+                            coordinates: coordinates[1]
+                        };
+                        let point = self.point(trackData);
+                        self.bindGeoObjEvents(point);
+                        points.push(point);
+                    })();
                 }
             }));
 
             let clusterer = self.clusterer(points);
             self._ymap.geoObjects.add(clusterer);
+
+            lines.forEach(l => self._ymap.geoObjects.add(l));
+        }
+
+        /**
+         *
+         * @param {*} relation
+         */
+        onUpdatedRelation (relations) {
+            let self = this;
+
+            relations.forEach(relation => {
+                self._ymap.geoObjects.each(o => {
+                    switch (o.options.getName()) {
+                        case 'geoObject':
+                            if (o.properties.get('guid') === relation.guid) {
+                                o.properties.set('balloonContent', relation.text);
+                            }
+                            break;
+
+                        case 'clusterer':
+                            o.getGeoObjects().forEach(p => {
+                                if (p.properties.get('guid') === relation.guid) {
+                                    let template = document.createElement('template');
+                                    template.innerHTML = p.properties.get('balloonContentFooter');
+                                    let content = template.content.firstChild;
+                                    content.querySelector('input#info').value = relation.text;
+                                    content.querySelector('input#info').setAttribute('value', relation.text);
+                                    p.properties.set('balloonContentFooter', template.innerHTML);
+                                }
+                            });
+                            break;
+
+                        default: break;
+                    }
+                });
+            });
+        }
+
+        /**
+         *
+         * @param  {any} relation
+         * @return {void}@memberof Ymap
+         */
+        onRemovedRelation (relation) {
+            let self = this;
+            self._ymap.geoObjects.each(o => {
+                switch (o.options.getName()) {
+                    case 'geoObject': o.properties.get('guid') === relation.guid && self._ymap.geoObjects.remove(o); break;
+                    case 'clusterer': o.getGeoObjects().forEach(p => p.properties.get('guid') === relation.guid && o.remove(p)); break;
+                    default: break;
+                }
+            });
         }
 
         /**
@@ -439,24 +532,24 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
 
         /**
          *
-         * @param  {any} route
+         * @param  {any} data
          * @param  {any} coordinates
          * @return
          * @memberof Ymap
          */
-        point (route, coordinates) {
+        point (data) {
             let geometry = {
                 type: 'Point',
-                coordinates: coordinates
+                coordinates: data.coordinates
             };
 
             let properties = {
-                guid: route.guid,
-                clusterCaption: `${route.child.street} ${route.child.house}`,
-                hintContent: `${route.child.street} ${route.child.house}`,
-                balloonContentHeader: `${route.child.street} ${route.child.house}`,
-                balloonContentBody: `[${route.parent.street} ${route.parent.house}]`,
-                balloonContentFooter: this._popupFowms.balloonFooter({ text: { info: route.info, guid: route.guid } })
+                guid: data.guid,
+                clusterCaption: data.clusterCaption, // `КК${data.child.street} ${data.child.house}`,
+                hintContent: data.hintContent, // `ХК${data.child.street} ${data.child.house}`,
+                balloonContentHeader: data.balloonHeader, // `БХ${data.child.street} ${data.child.house}`,
+                balloonContentBody: data.balloonBody, // `ББ[${data.parent.street} ${data.parent.house}]`,
+                balloonContentFooter: this._popupFowms.balloonFooter({ text: { info: data.info, guid: data.guid } })
             };
 
             let options = {
