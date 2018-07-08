@@ -22,21 +22,21 @@ define(['@app/globals', '@app/helpers/ymapHelper'], function (globals, Ymap) {
      * @param  {any} relation
      * @return {void}
      */
-    async function onAddedRealtion (relation) { globals.map.onAddedRelation([relation]); }
+    async function onAddedRealtion (relation) { globals.map.addRelation([relation]); }
 
     /**
      *
      * @param  {any} relation
      * @return {void}
      */
-    async function onUpdatedRelation (relation) { globals.map.onUpdatedRelation([relation]); }
+    async function onUpdatedRelation (relation) { globals.map.updateRelation([relation]); }
 
     /**
      *
      * @param  {any} relation
      * @return {void}
      */
-    function onRemovedRelation (relation) { globals.map.onRemovedRelation(relation); }
+    function onRemovedRelation (relation) { globals.map.removeRelation(relation); }
 
     return {
         onMapRequisition: onMapRequisition,

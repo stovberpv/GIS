@@ -3,15 +3,16 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
 
     class Ymap {
         constructor (opts) {
-            this._attachTo = opts ? opts.attachTo : 'map';
-            this.defCoord = [44.952116, 34.102411];
-            this.defControls = ['zoomControl', 'typeSelector', 'fullscreenControl', 'rulerControl'];
-            this.defOpts = { suppressMapOpenBlock: true };
-            this.defZoom = 13;
-
             this._ymap = null;
 
-            this._customControlsHandler = {
+            this._attachTo = opts ? opts.attachTo : 'map';
+            this._defCoord = [44.952116, 34.102411];
+            this._defControls = ['zoomControl', 'typeSelector', 'fullscreenControl', 'rulerControl'];
+            this._defOpts = { suppressMapOpenBlock: true };
+            this._defZoom = 13;
+
+            this._buttons = {
+                self: this,
                 getGeo: async function (e) {
                     let wrapper = e.target.closest('.add-route-wrapper');
 
@@ -62,14 +63,54 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
                         data.child[4].classList.remove('isVerified');
                     })();
                 },
+                inputOne: function () {
+                    let self = this.self;
+                    let button = (() => {
+                        let data = { content: 'Добавить трассу', image: 'images/branch.svg' };
+                        let options = { maxWidth: 150, float: 'left' };
+                        return new ymaps.control.Button({ data: data, options: options });
+                    })();
 
-                saveSingle: async function (e) {
+                    function pressEvent () {
+                        let template = self._popupFowms.newTrack();
+                        template.querySelector('.footer .button.check').addEventListener('click', self._buttons.getGeo.bind(self));
+                        template.querySelector('.footer .button.add').addEventListener('click', self._buttons.saveOne.bind(self));
+                        template.querySelector('.footer .button.cancel').addEventListener('click', self._buttons.cancel);
+
+                        document.body.appendChild(template);
+                    }
+
+                    button.events.add('press', pressEvent);
+
+                    return button;
+                },
+                inputMass: function () {
+                    let self = this.self;
+                    let button = (() => {
+                        let data = { content: 'Пакетный ввод', image: `images/library.svg` };
+                        let options = { maxWidth: 150, float: 'left' };
+                        return new ymaps.control.Button({ data: data, options: options });
+                    })();
+
+                    function pressEvent () {
+                        let template = self._popupFowms.massUpload();
+                        template.querySelector('.footer .button.save').addEventListener('click', self._buttons.saveMass.bind(self));
+                        template.querySelector('.footer .button.cancel').addEventListener('click', self._buttons.cancel);
+
+                        document.body.appendChild(template);
+                    }
+
+                    button.events.add('press', pressEvent);
+
+                    return button;
+                },
+                saveOne: async function (e) {
                     let self = this;
                     let wrapper = e.target.closest('.add-route-wrapper');
 
                     if (!wrapper) return;
 
-                    try { await self._customControlsHandler.getGeo(e); } catch (e) { return; };
+                    try { await self._buttons.getGeo(e); } catch (e) { return; };
 
                     let data = {
                         parent: wrapper.querySelectorAll('.parent input'),
@@ -92,9 +133,8 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
 
                     globals.socket.emit('addRelation', relation);
 
-                    self._customControlsHandler.cancel(e);
+                    self._buttons.cancel(e);
                 },
-
                 saveMass: async function (e) {
                     let self = this;
                     let text = e.target.closest('.popup-frame').querySelector('textarea');
@@ -141,57 +181,7 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
                         globals.socket.emit('addRelation', relation);
                     }
 
-                    self._customControlsHandler.cancel(e);
-                },
-
-                cancel: function (e) {
-                    let frame = e.target.closest('.popup-frame');
-                    frame.parentNode.removeChild(frame);
-                }
-            };
-
-            this._buttons = {
-                self: this,
-                addOne: function () {
-                    let self = this.self;
-                    let button = (() => {
-                        let data = { content: 'Добавить трассу', image: 'images/branch.svg' };
-                        let options = { maxWidth: 150, float: 'left' };
-                        return new ymaps.control.Button({ data: data, options: options });
-                    })();
-
-                    function pressEvent () {
-                        let template = self._popupFowms.newTrack();
-                        template.querySelector('.footer .button.check').addEventListener('click', self._customControlsHandler.getGeo.bind(self));
-                        template.querySelector('.footer .button.add').addEventListener('click', self._customControlsHandler.saveSingle.bind(self));
-                        template.querySelector('.footer .button.cancel').addEventListener('click', self._customControlsHandler.cancel);
-
-                        document.body.appendChild(template);
-                    }
-
-                    button.events.add('press', pressEvent);
-
-                    return button;
-                },
-                addMass () {
-                    let self = this.self;
-                    let button = (() => {
-                        let data = { content: 'Пакетный ввод', image: `images/library.svg` };
-                        let options = { maxWidth: 150, float: 'left' };
-                        return new ymaps.control.Button({ data: data, options: options });
-                    })();
-
-                    function pressEvent () {
-                        let template = self._popupFowms.massUpload();
-                        template.querySelector('.footer .button.save').addEventListener('click', self._customControlsHandler.saveMass.bind(self));
-                        template.querySelector('.footer .button.cancel').addEventListener('click', self._customControlsHandler.cancel);
-
-                        document.body.appendChild(template);
-                    }
-
-                    button.events.add('press', pressEvent);
-
-                    return button;
+                    self._buttons.cancel(e);
                 },
                 remove: function (e, data) {
                     if (!e.querySelector('#checkbox').classList.contains('selected')) return;
@@ -205,6 +195,10 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
                     inputInfo.classList.remove('edited');
 
                     globals.socket.emit('updateRelation', { guid: data.guid, text: inputInfo.value });
+                },
+                cancel: function (e) {
+                    let frame = e.target.closest('.popup-frame');
+                    frame.parentNode.removeChild(frame);
                 }
             };
 
@@ -300,7 +294,7 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
          * @return {void}@memberof Ymap
          */
         attach () {
-            this._ymap = new ymaps.Map(this._attachTo, { center: this.defCoord, controls: this.defControls, zoom: this.defZoom }, this.defOpts);
+            this._ymap = new ymaps.Map(this._attachTo, { center: this._defCoord, controls: this._defControls, zoom: this._defZoom }, this._defOpts);
         }
 
         /**
@@ -363,25 +357,8 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
          * @return {void}@memberof Ymap
          */
         addControl () {
-            this._ymap.controls.add(this._buttons.addOne());
-            this._ymap.controls.add(this._buttons.addMass());
-        }
-
-        /**
-         *
-         * @param {*} relation
-         */
-        addRelation (relation) {
-            this.onAddedRelation(relation);
-        }
-
-        /**
-         *
-         * @param {*} geoObject
-         * @param {*} data
-         */
-        updateRelation (geoObject, data) {
-
+            this._ymap.controls.add(this._buttons.inputOne());
+            this._ymap.controls.add(this._buttons.inputMass());
         }
 
         /**
@@ -390,7 +367,7 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
          * @return
          * @memberof Ymap
          */
-        async onAddedRelation (relations) {
+        async addRelation (relations) {
             let self = this;
             // Координатные точки добавялемые на карту через кластеризатор
             let points = [];
@@ -453,7 +430,7 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
          *
          * @param {*} relation
          */
-        onUpdatedRelation (relations) {
+        updateRelation (relations) {
             let self = this;
 
             relations.forEach(relation => {
@@ -489,7 +466,7 @@ define(['@app/globals', 'ymaps', '@app/helpers/trackHelper', '@app/util/promiseD
          * @param  {any} relation
          * @return {void}@memberof Ymap
          */
-        onRemovedRelation (relation) {
+        removeRelation (relation) {
             let self = this;
             self._ymap.geoObjects.each(o => {
                 switch (o.options.getName()) {

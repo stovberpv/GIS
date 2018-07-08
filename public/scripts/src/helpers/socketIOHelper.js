@@ -9,7 +9,7 @@ define([
      *
      * @return {void}
      */
-    function init () { globals.socket = io(`${config.socketConnection.host}:${config.socketConnection.port}`); }
+    function init () { globals.socket = io(`${config.socketConnection.host.current}:${config.socketConnection.port}`); }
     /**
      *
      * @return {void}
