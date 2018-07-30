@@ -1,4 +1,4 @@
-define(['@app/globals', '@app/helpers/ymapHelper'], function (globals, Ymap) {
+define(['@app/globals', '@app/controllers/mapController', '@app/controllers/trackController'], function (globals, MapController, TrackController) {
     'use strict';
 
     /**
@@ -7,14 +7,15 @@ define(['@app/globals', '@app/helpers/ymapHelper'], function (globals, Ymap) {
      * @return
      */
     async function onMapRequisition (relationMap) {
-        let map = new Ymap({ attachTo: 'map' });
-        try { await map.init(); } catch (e) { console.log(e); return; }
-        map.attach();
-        try { await map.addRelation(relationMap); } catch (e) { console.log(e); return; }
-        map.bindMapEvents();
-        map.addControl();
+        let mapController = new MapController({ attachTo: 'map' });
+        try { await mapController.create(); } catch (e) { console.log(e); return; }
+        mapController.addControl();
+        mapController.setEvents();
+        try { await mapController.addRelation(relationMap); } catch (e) { console.log(e); return; }
 
-        globals.map = map;
+        new TrackController().init();
+
+        globals.map = mapController;
     }
 
     /**

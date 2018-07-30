@@ -15,6 +15,7 @@ class Track {
     constructor () { return this; }
 
     /**
+     * TODO guid parent-child check
      * Создает или обновляет уже существующее соединение.
      * Добавляет отсутствующие записи адресов и координат в таблицах.
      *
@@ -25,7 +26,7 @@ class Track {
     async addRelation (data) {
         return new Promise(async (resolve, reject) => {
             let db;
-            let sqlData = { parent: { city: [], address: [], geo: [] }, child: { city: [], address: [], geo: [] }, relation: [], information: [] };
+            let dbData = { parent: { city: [], address: [], geo: [] }, child: { city: [], address: [], geo: [] }, relation: [], information: [] };
             let query = {
                 city: {
                     select: {
@@ -60,7 +61,7 @@ class Track {
                         default: 'SELECT guid FROM information WHERE relation = ?',
                         rowID: 'SELECT guid FROM information WHERE ROWID = ?'
                     },
-                    insert: 'INSERT INTO information(relation, text) VALUES(?,?)'
+                    insert: 'INSERT INTO information(relation, description, length, blabel, elabel, type, cores) VALUES(?,?,?,?,?,(SELECT guid FROM cabletypes WHERE type = ?),(SELECT guid FROM cablecores WHERE cores = ?))'
                 }
             };
 
@@ -83,25 +84,25 @@ class Track {
             }
 
             // parent city
-            try { sqlData.parent.city = await fetch(query.city, { select: [data.p_city], insert: [data.p_city] }); } catch (e) { reject(e); }
+            try { dbData.parent.city = await fetch(query.city, { select: [data.parent_city], insert: [data.parent_city] }); } catch (e) { reject(e); }
             // parent address
-            try { sqlData.parent.address = await fetch(query.address, { select: [sqlData.parent.city[0].guid, data.p_street, data.p_house], insert: [sqlData.parent.city[0].guid, data.p_street, data.p_house] }); } catch (e) { reject(e); }
+            try { dbData.parent.address = await fetch(query.address, { select: [dbData.parent.city[0].guid, data.parent_street, data.parent_house], insert: [dbData.parent.city[0].guid, data.parent_street, data.parent_house] }); } catch (e) { reject(e); }
             // parent geo
-            try { sqlData.parent.geo = await fetch(query.geo, { select: [sqlData.parent.address[0].guid], insert: [sqlData.parent.address[0].guid, data.p_lat, data.p_lon] }); } catch (e) { reject(e); }
+            try { dbData.parent.geo = await fetch(query.geo, { select: [dbData.parent.address[0].guid], insert: [dbData.parent.address[0].guid, data.parent_lat, data.parent_lon] }); } catch (e) { reject(e); }
 
             // child city
-            try { sqlData.child.city = await fetch(query.city, { select: [data.c_city], insert: [data.c_city] }); } catch (e) { reject(e); }
+            try { dbData.child.city = await fetch(query.city, { select: [data.child_city], insert: [data.child_city] }); } catch (e) { reject(e); }
             // child address
-            try { sqlData.child.address = await fetch(query.address, { select: [sqlData.child.city[0].guid, data.c_street, data.c_house], insert: [sqlData.child.city[0].guid, data.c_street, data.c_house] }); } catch (e) { reject(e); }
+            try { dbData.child.address = await fetch(query.address, { select: [dbData.child.city[0].guid, data.child_street, data.child_house], insert: [dbData.child.city[0].guid, data.child_street, data.child_house] }); } catch (e) { reject(e); }
             // child geo
-            try { sqlData.child.geo = await fetch(query.geo, { select: [sqlData.child.address[0].guid], insert: [sqlData.child.address[0].guid, data.c_lat, data.c_lon] }); } catch (e) { reject(e); }
+            try { dbData.child.geo = await fetch(query.geo, { select: [dbData.child.address[0].guid], insert: [dbData.child.address[0].guid, data.child_lat, data.child_lon] }); } catch (e) { reject(e); }
 
             // relation guid
-            try { sqlData.relation = await fetch(query.relation, { select: [sqlData.parent.address[0].guid, sqlData.child.address[0].guid], insert: [sqlData.parent.address[0].guid, sqlData.child.address[0].guid] }); } catch (e) { reject(e); }
+            try { dbData.relation = await fetch(query.relation, { select: [dbData.parent.address[0].guid, dbData.child.address[0].guid], insert: [dbData.parent.address[0].guid, dbData.child.address[0].guid] }); } catch (e) { reject(e); }
             // information
-            try { sqlData.information = await fetch(query.information, { select: [sqlData.relation[0].guid], insert: [sqlData.relation[0].guid, data.text] }); } catch (e) { reject(e); }
+            try { dbData.information = await fetch(query.information, { select: [dbData.relation[0].guid], insert: [dbData.relation[0].guid, data.line_description, data.line_length, data.label_begin, data.label_end, data.cabel_type, data.cabel_cores] }); } catch (e) { reject(e); }
 
-            resolve(sqlData.relation[0].guid);
+            resolve(dbData.relation[0].guid);
         });
     }
 
@@ -116,28 +117,37 @@ class Track {
         return new Promise(async (resolve, reject) => {
             let db = new DBHelper();
             let sql =
-                `SELECT a.guid,
-                        parent_city.name     AS p_city,
-                        parent_addr.street   AS p_street,
-                        parent_addr.house    AS p_house,
-                        parent_geo.latitude  AS p_lat,
-                        parent_geo.longitude AS p_lon,
-                        child_city.name      AS c_city,
-                        child_addr.street    AS c_street,
-                        child_addr.house     AS c_house,
-                        child_geo.latitude   AS c_lat,
-                        child_geo.longitude  AS c_lon,
-                        b.text,
-                        a.deprecated,
-                        a.override
+                `SELECT a.guid           AS track_guid,
+                        p_addr.guid      AS parent_guid,
+                        p_city.name      AS parent_city,
+                        p_addr.street    AS parent_street,
+                        p_addr.house     AS parent_house,
+                        p_geo.latitude   AS parent_lat,
+                        p_geo.longitude  AS parent_lon,
+                        c_addr.guid      AS child_guid,
+                        c_city.name      AS child_city,
+                        c_addr.street    AS child_street,
+                        c_addr.house     AS child_house,
+                        c_geo.latitude   AS child_lat,
+                        c_geo.longitude  AS child_lon,
+                        b.description    AS line_description,
+                        b.length         AS line_length,
+                        b.blabel         AS label_begin,
+                        b.elabel         AS label_end,
+                        c.cores          AS cabel_cores,
+                        d.type           AS cabel_type,
+                        a.deprecated     AS is_active,
+                        a.override       AS is_actual
                     FROM relation         AS a
-                    JOIN address          AS parent_addr ON a.address_p      = parent_addr.guid
-                    JOIN address          AS child_addr  ON a.address_c      = child_addr.guid
-                    JOIN city             AS parent_city ON parent_addr.city = parent_city.guid
-                    JOIN city             AS child_city  ON child_addr.city  = child_city.guid
-                    LEFT JOIN geo         AS parent_geo  ON parent_addr.guid = parent_geo.address
-                    LEFT JOIN geo         AS child_geo   ON child_addr.guid  = child_geo.address
-                    LEFT JOIN information AS b           ON a.guid           = b.relation`;
+                    JOIN address          AS p_addr ON a.address_p = p_addr.guid
+                    JOIN address          AS c_addr ON a.address_c = c_addr.guid
+                    JOIN city             AS p_city ON p_addr.city = p_city.guid
+                    JOIN city             AS c_city ON c_addr.city = c_city.guid
+                    LEFT JOIN geo         AS p_geo  ON p_addr.guid = p_geo.address
+                    LEFT JOIN geo         AS c_geo  ON c_addr.guid = c_geo.address
+                    LEFT JOIN information AS b      ON a.guid      = b.relation
+                    LEFT JOIN cablecores  AS c      ON b.cores     = c.guid
+                    LEFT JOIN cabletypes  AS d      ON b.type      = d.guid`;
             sql = guid ? `${sql} WHERE a.guid = '${guid}'` : sql;
 
             let data;
@@ -170,8 +180,8 @@ class Track {
     async updateRelation (data) {
         return new Promise(async (resolve, reject) => {
             let db = new DBHelper();
-            let sql = `UPDATE information SET text = ? WHERE relation = ?`;
-            try { let result = await db.run(sql, [data.text, data.guid]); resolve(result); } catch (e) { reject(e); }
+            let sql = `UPDATE information SET description = ?, length = ?, blabel = ?, elabel = ?, type = (SELECT guid FROM cabletypes WHERE type = ?), cores = (SELECT guid FROM cablecores WHERE cores = ?) WHERE relation = ?`;
+            try { let result = await db.run(sql, [data.line_description, data.line_length, data.label_begin, data.label_end, data.cabel_type, data.cabel_cores, data.track_guid]); resolve(result); } catch (e) { reject(e); }
         });
     }
 }

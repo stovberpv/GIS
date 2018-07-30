@@ -2,7 +2,7 @@ define([
     '@app/globals',
     '@app/config/appConfig',
     '@app/lib/socket.io.slim',
-    '@app/controllers/ymapController'], function (globals, config, io, ymapController) {
+    '@app/helpers/mapHelper'], function (globals, config, io, mapHelper) {
     'use strict';
 
     /**
@@ -19,22 +19,22 @@ define([
      *
      * @return {void}
      */
-    function onMapRequisition () { globals.socket.on('mapRequested', ymapController.onMapRequisition); }
+    function onMapRequisition () { globals.socket.on('mapRequested', mapHelper.onMapRequisition); }
     /**
      *
      * @return {void}
      */
-    function onAddedRelation () { globals.socket.on('addedRelation', ymapController.onAddedRealtion); }
+    function onAddedRelation () { globals.socket.on('addedRelation', mapHelper.onAddedRealtion); }
     /**
      *
      * @return {void}
      */
-    function onUpdatedRelation () { globals.socket.on('updatedRelation', ymapController.onUpdatedRelation); }
+    function onUpdatedRelation () { globals.socket.on('updatedRelation', mapHelper.onUpdatedRelation); }
     /**
      *
      * @return {void}
      */
-    function onRemovedRelation () { globals.socket.on('removedRelation', ymapController.onRemovedRelation); }
+    function onRemovedRelation () { globals.socket.on('removedRelation', mapHelper.onRemovedRelation); }
     /**
      *
      * @return {void}

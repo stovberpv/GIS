@@ -7,7 +7,8 @@
     "dev": "SET DEBUG=gis:* & nodemon ./bin/www"
   },
   "eslintIgnore": [
-    "require.js"
+    "require.js",
+    "settings.json"
   ],
   "dependencies": {
     "cookie-parser": "~1.4.3",
